@@ -12,14 +12,6 @@ afterAll(() => {
   return db.end();
 });
 
-// Responds with:
-// an array of topic objects, each of which should have the following properties:
-// slug
-// description
-// As this is the first endpoint you will need to set up your testing suite.
-
-// Errors handled.
-
 describe("App testing", () => {
   describe("GET ", () => {
     test.only("Returns a 200 status and an array of all topics", () => {
