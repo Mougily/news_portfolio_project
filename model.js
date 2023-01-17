@@ -23,13 +23,27 @@ const fetchAllArticles = () => {
   return db
     .query(sqlQuery)
     .then((result) => {
-      if (result.rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not found!" });
-      }
-      return result.rows;
+        if (result.rows.length === 0){
+            return Promise.reject({status : 404, msg : 'Not found!'})
+        }
+        return result.rows
     })
-    
 };
+
+const fetchArticleComments = (id) => {
+   const sqlQuery = `SELECT * FROM comments
+    WHERE article_id = $1
+    ORDER BY created_at ASC;`
+    return db.query(sqlQuery, [id])
+    .then((result) => {
+        if (result.rows.length === 0){
+          return Promise.reject({status : 404, msg : "Not found!"})
+        } else {
+          return result.rows
+        }
+    })
+}
+
 
 const fetchSingleArticle = (id) => {
   const sqlQuery = `SELECT * FROM articles
@@ -46,4 +60,5 @@ const fetchSingleArticle = (id) => {
         }
     })    
 };
-module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle };
+module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments };
+
