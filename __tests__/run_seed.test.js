@@ -105,6 +105,22 @@ describe("GET /article/comments", () => {
           );
         });
     })
+    test("responds with an error message when passed an incorrect id", () => {
+      return request(app)
+        .get("/api/articles/2345678/comments")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    })
+    test("responds with a 400 error message when passed an incorrect id type", () => {
+      return request(app)
+        .get("/api/articles/hello/comments")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request!");
+        });
+    })
   })
   describe("GET /api/articles/:article_id", () => {
     test("Returns a 200 status and responds with an article object based on passed article_id", () => {
