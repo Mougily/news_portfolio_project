@@ -170,29 +170,38 @@ describe("POST", () => {
     test("Returns a status 201 and responds with the updated comment object", () => {
       const updatedComment = { username: "lurker", body: "blah blah blah" };
       const responseComment = {
-        body: "blah blah blah",
-        votes: expect.any(Number),
-        author: "lurker",
-        article_id: expect.any(String),
-        created_at: expect.any(String),
-        comment_id: expect.any(Number),
-      };
+        comment: {
+          article_id: 3,
+          author: "lurker",
+          body: "blah blah blah",
+          comment_id: 19,
+          created_at: expect.any(String),
+          votes: 0,
+        },
+      }
       return request(app)
         .post(`/api/articles/3/comments`)
         .send(updatedComment)
         .expect(201)
         .then((response) => {
           const { body } = response;
-          expect(body).toEqual({
-            comment: {
-              article_id: 3,
-              author: "lurker",
-              body: "blah blah blah",
-              comment_id: 19,
-              created_at: expect.any(String),
-              votes: 0,
-            },
-          });
+          expect(body).toEqual(responseComment);
+        });
+    });
+    test("Returns a 404 error message for article id not found", () => {
+      return request(app)
+        .post("/api/articles/2345678/comments")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 400 error message for invalid id", () => {
+      return request(app)
+        .post("/api/articles/hello/comments")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request!");
         });
     });
   });

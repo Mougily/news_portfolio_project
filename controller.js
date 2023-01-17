@@ -39,7 +39,6 @@ const postComment = (request, response, next) => {
     const id = request.params.article_id
     const newComment = request.body
     sendComment(id, newComment).then((comment) => {
-        console.log(comment)
         response.status(201).send({comment})
     }).catch((err) => {
         next(err)
