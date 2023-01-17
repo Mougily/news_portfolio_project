@@ -60,5 +60,18 @@ const fetchSingleArticle = (id) => {
         }
     })    
 };
-module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments };
 
+const sendComment = (id, comment) => {
+  console.log(id, comment.username, comment.body)
+  const sqlQuery = `
+INSERT INTO comments (article_id, author, body)
+VALUES ($1, (SELECT username FROM users WHERE username = $2), $3)
+RETURNING *;`
+  return db
+  .query(sqlQuery, [id, comment.username, comment.body])
+  .then((result) => {
+    console.log(result.rows[0])
+    return result.rows[0]
+  })
+}
+module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment };
