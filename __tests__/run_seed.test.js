@@ -13,7 +13,7 @@ afterAll(() => {
 });
 
 describe("App testing", () => {
-  describe("GET /api/topics", () => {
+  describe("GET ", () => {
     test("Returns a 200 status and an array of all topics", () => {
       return request(app)
         .get("/api/topics")
@@ -36,7 +36,7 @@ describe("App testing", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
-        .then(( { body }) => {
+        .then(({ body }) => {
           expect(body.articles.length).toBeGreaterThan(0);
           body.articles.forEach((article) => {
             expect(article).toEqual(
@@ -48,7 +48,7 @@ describe("App testing", () => {
                 votes: expect.any(Number),
                 article_img_url: expect.any(String),
                 article_id: expect.any(Number),
-                comment_count : expect.any(String)
+                comment_count: expect.any(String),
               })
             );
           });
@@ -59,19 +59,57 @@ describe("App testing", () => {
         .get(`/api/articles`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles[0].created_at).toBe(
-            "2020-11-03T09:12:00.000Z"
+          expect(body.articles[0].created_at).toBe("2020-11-03T09:12:00.000Z");
+          expect(body.articles[body.articles.length - 1].created_at).toBe(
+            "2020-06-06T09:10:00.000Z"
           );
-          expect(body.articles[body.articles.length - 1].created_at).toBe("2020-06-06T09:10:00.000Z");
         });
     });
     test("responds with a 404 error when passed an incorrect route", () => {
-        return request(app)
+      return request(app)
         .get(`/api/articles123`)
         .expect(404)
-        .then(({body : {msg}}) =>{
-            expect(msg).toBe('Not found!')
-        })
-    })
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 200 status and responds with an article object based on passed article_id", () => {
+      return request(app)
+        .get("/api/articles/3")
+        .expect(200)
+        .then(({ body }) => {
+          const article3 = {
+            title: "Eight pug gifs that remind me of mitch",
+            topic: "mitch",
+            author: "icellusedkars",
+            body: "some gifs",
+            created_at: "2020-11-03T09:12:00.000Z",
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            article_id: 3,
+            votes: 0,
+          };
+          expect(body.article.length).toBeGreaterThan(0);
+          body.article.forEach((article) => {
+            expect(article).toEqual(article3);
+          });
+        });
+    });
+    test("Returns a 404 error message for id not found", () => {
+      return request(app)
+        .get("/api/articles/2345678")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 400 error message for invalid id", () => {
+        return request(app)
+          .get("/api/articles/hello")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request!");
+          });
+      });
   });
 });
