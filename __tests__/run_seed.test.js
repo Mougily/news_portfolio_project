@@ -36,7 +36,7 @@ describe("App testing", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
-        .then(( { body }) => {
+        .then(({ body }) => {
           expect(body.articles.length).toBeGreaterThan(0);
           body.articles.forEach((article) => {
             expect(article).toEqual(
@@ -48,7 +48,7 @@ describe("App testing", () => {
                 votes: expect.any(Number),
                 article_img_url: expect.any(String),
                 article_id: expect.any(Number),
-                comment_count : expect.any(String)
+                comment_count: expect.any(String),
               })
             );
           });
@@ -59,19 +59,48 @@ describe("App testing", () => {
         .get(`/api/articles`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles[0].created_at).toBe(
-            "2020-11-03T09:12:00.000Z"
+          expect(body.articles[0].created_at).toBe("2020-11-03T09:12:00.000Z");
+          expect(body.articles[body.articles.length - 1].created_at).toBe(
+            "2020-06-06T09:10:00.000Z"
           );
-          expect(body.articles[body.articles.length - 1].created_at).toBe("2020-06-06T09:10:00.000Z");
         });
     });
     test("responds with a 404 error when passed an incorrect route", () => {
-        return request(app)
+      return request(app)
         .get(`/api/articles123`)
         .expect(404)
-        .then(({body : {msg}}) =>{
-            expect(msg).toBe('Not found!')
-        })
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Responds with a 200 status and an array of comments for the given article_id", () => {
+      return request(app)
+        .get(`/api/articles/3/comments`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBeGreaterThan(0);
+          body.comments.forEach((comment) => {
+            expect(comment).toEqual(expect.objectContaining({
+                comment_id : expect.any(Number),
+                votes : expect.any(Number),
+                created_at : expect.any(String),
+                author : expect.any(String),
+                body : expect.any(String),
+                article_id : expect.any(Number)
+            }));
+          });
+        });
+    });
+    test("Orders comments in ascending order, with the most recent first", () => {
+        return request(app)
+        .get(`/api/articles/3/comments`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments[0].created_at).toBe("2020-06-20T07:24:00.000Z");
+          expect(body.comments[body.comments.length-1].created_at).toBe(
+            "2020-09-19T23:10:00.000Z"
+          );
+        });
     })
   });
 });
