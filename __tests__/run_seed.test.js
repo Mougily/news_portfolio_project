@@ -65,12 +65,12 @@ describe("App testing", () => {
           expect(body.articles[body.articles.length - 1].created_at).toBe("2020-06-06T09:10:00.000Z");
         });
     });
-    test.only("responds with a 404 error when passed an incorrect route", () => {
+    test("responds with a 404 error when passed an incorrect route", () => {
         return request(app)
         .get(`/api/articles123`)
         .expect(404)
         .then(({body : {msg}}) =>{
-            expect(msg).toBe(undefined)
+            expect(msg).toBe('Not found!')
         })
     })
   });
