@@ -13,7 +13,7 @@ afterAll(() => {
 });
 
 describe("App testing", () => {
-  describe("GET ", () => {
+  describe("GET topics", () => {
     test("Returns a 200 status and an array of all topics", () => {
       return request(app)
         .get("/api/topics")
@@ -73,6 +73,56 @@ describe("App testing", () => {
           expect(msg).toBe("Not found!");
         });
     });
+  })
+
+describe("GET /article/comments", () => {
+    test("Responds with a 200 status and an array of comments for the given article_id", () => {
+      return request(app)
+        .get(`/api/articles/3/comments`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBeGreaterThan(0);
+          body.comments.forEach((comment) => {
+            expect(comment).toEqual(expect.objectContaining({
+                comment_id : expect.any(Number),
+                votes : expect.any(Number),
+                created_at : expect.any(String),
+                author : expect.any(String),
+                body : expect.any(String),
+                article_id : expect.any(Number)
+            }));
+          });
+        });
+    });
+    test("Orders comments in ascending order, with the most recent first", () => {
+        return request(app)
+        .get(`/api/articles/3/comments`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments[0].created_at).toBe("2020-06-20T07:24:00.000Z");
+          expect(body.comments[body.comments.length-1].created_at).toBe(
+            "2020-09-19T23:10:00.000Z"
+          );
+        });
+    })
+    test("responds with an error message when passed an incorrect id", () => {
+      return request(app)
+        .get("/api/articles/2345678/comments")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    })
+    test("responds with a 400 error message when passed an incorrect id type", () => {
+      return request(app)
+        .get("/api/articles/hello/comments")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request!");
+        });
+    })
+  })
+  describe("GET /api/articles/:article_id", () => {
     test("Returns a 200 status and responds with an article object based on passed article_id", () => {
       return request(app)
         .get("/api/articles/3")

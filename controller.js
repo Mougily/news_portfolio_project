@@ -1,5 +1,5 @@
-const express = require("express")
-const {fetchAllTopics, fetchAllArticles, fetchSingleArticle} = require('./model');
+const {fetchAllTopics, fetchAllArticles, fetchArticleComments, fetchSingleArticle} = require('./model');
+
 
 const getTopics = (request, response, next) => {
     fetchAllTopics().then((topics) => {
@@ -17,17 +17,23 @@ const getArticles = (request, response, next) => {
     })
 }
 
+const getArticleComments = (request, response, next) => {
+    const id = request.params.article_id
+    fetchArticleComments(id).then((comments) => {
+        response.status(200).send({comments})
+    }).catch((err) => {
+        next(err)
+    })
+}
+
 const getArticleById = (request, response, next) => {
     const id = request.params.article_id
     fetchSingleArticle(id).then((article) => {
         response.status(200).send({article})
     }).catch((err) => {
-        console.log(err)
-        next(err)
+       next(err)
     })
 }
 
+module.exports = {getTopics, getArticles, getArticleComments, getArticleById}
 
-
-  
-module.exports = {getTopics, getArticles, getArticleById}
