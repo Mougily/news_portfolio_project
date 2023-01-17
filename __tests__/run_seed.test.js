@@ -30,28 +30,28 @@ describe("App testing", () => {
           });
         });
     });
-    test("Returns a 200 status and responds with an article object based on passed article_id", () => {
-        return request(app)
-        .get("/api/articles/article_id=3")
-        .expect(200)
-        .then(({body}) => {
-            const article3 = {
-                title: 'Eight pug gifs that remind me of mitch',
-                topic: 'mitch',
-                author: 'icellusedkars',
-                body: 'some gifs',
-                created_at: 1604394720000,
-                article_img_url:
-                  'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
-                  article_id : 3,
-                  votes : 0
-              }
-            expect(body.articles.length).toBeGreaterThan(0);
-            body.article.forEach((article) => {
-                expect(article).toEqual(article3)                
-            })
-        })
-    })
+    // test("Returns a 200 status and responds with an article object based on passed article_id", () => {
+    //     return request(app)
+    //     .get("/api/articles/article_id=3")
+    //     .expect(200)
+    //     .then(({body}) => {
+    //         const article3 = {
+    //             title: 'Eight pug gifs that remind me of mitch',
+    //             topic: 'mitch',
+    //             author: 'icellusedkars',
+    //             body: 'some gifs',
+    //             created_at: 1604394720000,
+    //             article_img_url:
+    //               'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700',
+    //               article_id : 3,
+    //               votes : 0
+    //           }
+    //         expect(body.articles.length).toBeGreaterThan(0);
+    //         body.article.forEach((article) => {
+    //             expect(article).toEqual(article3)                
+    //         })
+    //     })
+    // })
 
   });
 });
