@@ -13,7 +13,7 @@ afterAll(() => {
 });
 
 describe("App testing", () => {
-  describe("GET /api/topics", () => {
+  describe("GET topics", () => {
     test("Returns a 200 status and an array of all topics", () => {
       return request(app)
         .get("/api/topics")
@@ -73,6 +73,9 @@ describe("App testing", () => {
           expect(msg).toBe("Not found!");
         });
     });
+  })
+
+describe("GET /article/comments", () => {
     test("Responds with a 200 status and an array of comments for the given article_id", () => {
       return request(app)
         .get(`/api/articles/3/comments`)
@@ -102,5 +105,45 @@ describe("App testing", () => {
           );
         });
     })
+  })
+  describe("GET /api/articles/:article_id", () => {
+    test("Returns a 200 status and responds with an article object based on passed article_id", () => {
+      return request(app)
+        .get("/api/articles/3")
+        .expect(200)
+        .then(({ body }) => {
+          const article3 = {
+            title: "Eight pug gifs that remind me of mitch",
+            topic: "mitch",
+            author: "icellusedkars",
+            body: "some gifs",
+            created_at: "2020-11-03T09:12:00.000Z",
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            article_id: 3,
+            votes: 0,
+          };
+          expect(body.article.length).toBeGreaterThan(0);
+          body.article.forEach((article) => {
+            expect(article).toEqual(article3);
+          });
+        });
+    });
+    test("Returns a 404 error message for id not found", () => {
+      return request(app)
+        .get("/api/articles/2345678")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 400 error message for invalid id", () => {
+        return request(app)
+          .get("/api/articles/hello")
+          .expect(400)
+          .then(({ body: { msg } }) => {
+            expect(msg).toBe("Bad request!");
+          });
+      });
   });
 });
