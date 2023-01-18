@@ -73,9 +73,9 @@ describe("App testing", () => {
           expect(msg).toBe("Not found!");
         });
     });
-  })
+  });
 
-describe("GET /article/comments", () => {
+  describe("GET /article/comments", () => {
     test("Responds with a 200 status and an array of comments for the given article_id", () => {
       return request(app)
         .get(`/api/articles/3/comments`)
@@ -83,28 +83,30 @@ describe("GET /article/comments", () => {
         .then(({ body }) => {
           expect(body.comments.length).toBeGreaterThan(0);
           body.comments.forEach((comment) => {
-            expect(comment).toEqual(expect.objectContaining({
-                comment_id : expect.any(Number),
-                votes : expect.any(Number),
-                created_at : expect.any(String),
-                author : expect.any(String),
-                body : expect.any(String),
-                article_id : expect.any(Number)
-            }));
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+                article_id: expect.any(Number),
+              })
+            );
           });
         });
     });
     test("Orders comments in ascending order, with the most recent first", () => {
-        return request(app)
+      return request(app)
         .get(`/api/articles/3/comments`)
         .expect(200)
         .then(({ body }) => {
           expect(body.comments[0].created_at).toBe("2020-06-20T07:24:00.000Z");
-          expect(body.comments[body.comments.length-1].created_at).toBe(
+          expect(body.comments[body.comments.length - 1].created_at).toBe(
             "2020-09-19T23:10:00.000Z"
           );
         });
-    })
+    });
     test("responds with an error message when passed an incorrect id", () => {
       return request(app)
         .get("/api/articles/2345678/comments")
@@ -112,7 +114,7 @@ describe("GET /article/comments", () => {
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Not found!");
         });
-    })
+    });
     test("responds with a 400 error message when passed an incorrect id type", () => {
       return request(app)
         .get("/api/articles/hello/comments")
@@ -120,8 +122,8 @@ describe("GET /article/comments", () => {
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Bad request!");
         });
-    })
-  })
+    });
+  });
   describe("GET /api/articles/:article_id", () => {
     test("Returns a 200 status and responds with an article object based on passed article_id", () => {
       return request(app)
@@ -154,12 +156,92 @@ describe("GET /article/comments", () => {
         });
     });
     test("Returns a 400 error message for invalid id", () => {
-        return request(app)
-          .get("/api/articles/hello")
-          .expect(400)
-          .then(({ body: { msg } }) => {
-            expect(msg).toBe("Bad request!");
-          });
-      });
+      return request(app)
+        .get("/api/articles/hello")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request!");
+        });
+    });
+  });
+});
+describe("POST", () => {
+  describe("POST responds request body accepts a comment object and responds with the post comment", () => {
+    test("Returns a status 201 and responds with the updated comment object", () => {
+      const updatedComment = { username: "lurker", body: "blah blah blah" };
+      const responseComment = {
+        comment: {
+          article_id: 3,
+          author: "lurker",
+          body: "blah blah blah",
+          comment_id: 19,
+          created_at: expect.any(String),
+          votes: 0,
+        },
+      }
+      return request(app)
+        .post(`/api/articles/3/comments`)
+        .send(updatedComment)
+        .expect(201)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual(responseComment);
+        });
+    });
+    test("Returns a 404 error message for article id not found", () => {
+      return request(app)
+        .post("/api/articles/2345678/comments")
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 400 error message for invalid id", () => {
+      return request(app)
+        .post("/api/articles/hello/comments")
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad request!");
+        });
+    });
+    test("Returns a 404 error message when passed a body without a username", () => {
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send({body : 'hello'})
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 404 error message when passed a body where username is not present in test database", () => {
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send({username: 'Steph', body : 'hello'})
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a status 201 and responds with the updated comment object when passed a comment body with an extra key, function is able to ignore extra key", () => {
+      const updatedComment = { username: "lurker", body: "blah blah blah", hour : 12 };
+      const responseComment = {
+        comment: {
+          article_id: 3,
+          author: "lurker",
+          body: "blah blah blah",
+          comment_id: 19,
+          created_at: expect.any(String),
+          votes: 0,
+        },
+      }
+      return request(app)
+        .post(`/api/articles/3/comments`)
+        .send(updatedComment)
+        .expect(201)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual(responseComment);
+        });
+    });
   });
 });

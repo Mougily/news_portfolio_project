@@ -1,4 +1,4 @@
-const {fetchAllTopics, fetchAllArticles, fetchArticleComments, fetchSingleArticle} = require('./model');
+const {fetchAllTopics, fetchAllArticles, fetchArticleComments, fetchSingleArticle, sendComment} = require('./model');
 
 
 const getTopics = (request, response, next) => {
@@ -35,5 +35,15 @@ const getArticleById = (request, response, next) => {
     })
 }
 
-module.exports = {getTopics, getArticles, getArticleComments, getArticleById}
+const postComment = (request, response, next) => {
+    const id = request.params.article_id
+    const newComment = request.body
+    sendComment(id, newComment).then((comment) => {
+        response.status(201).send({comment})
+    }).catch((err) => {
+        next(err)
+    })
+}
+
+module.exports = {getTopics, getArticles, getArticleComments, getArticleById, postComment}
 

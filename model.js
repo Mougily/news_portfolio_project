@@ -60,5 +60,20 @@ const fetchSingleArticle = (id) => {
         }
     })    
 };
-module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments };
 
+const sendComment = (id, comment) => {
+  const sqlQuery = `
+INSERT INTO comments (article_id, author, body)
+VALUES ($1, (SELECT username FROM users WHERE username = $2), $3)
+RETURNING *;`
+  return db
+  .query(sqlQuery, [id, comment.username, comment.body])
+  .then((result) => {
+    if (result.rows.length === 0){
+      return Promise.reject({ status: 404, msg: "Not found!" })
+    } else {
+    return result.rows[0]
+    }
+  })
+}
+module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment };
