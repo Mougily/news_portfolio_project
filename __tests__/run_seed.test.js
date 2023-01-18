@@ -30,6 +30,14 @@ describe("App testing", () => {
           });
         });
     });
+    test("responds with a 404 error when passed an incorrect route", () => {
+      return request(app)
+        .get(`/api/topics123`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
   });
   describe("GET /api/articles", () => {
     test("Returns a 200 status and an array of all articles", () => {
@@ -245,3 +253,31 @@ describe("POST", () => {
     });
   });
 });
+describe("GET : users", () => {
+  test('Returns a 200 status and an array of all users', () => {
+    return request(app)
+    .get("/api/users")
+    .expect(200)
+    .then(({body}) => {
+      expect(body.users.length).toBeGreaterThan(0);
+      body.users.forEach((user) => {
+        expect(user).toEqual(
+          expect.objectContaining({
+            username : expect.any(String),
+            name : expect.any(String),
+            avatar_url : expect.any(String)
+          })
+        )
+      })
+    })
+  })
+  test("Responds with a 404 error message when passed an incorrect route", () => {
+    return request(app)
+    .get('/api/userrrrrrs')
+    .expect(404)
+    .then(({body : {msg}}) => {
+      expect(msg).toBe("Not found!")
+    })
+  })
+})
+

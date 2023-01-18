@@ -8,9 +8,7 @@ const fetchAllTopics = () => {
     .then((results) => {
       return results.rows;
     })
-    .catch((err) => {
-      next(err);
-    });
+
 };
 
 const fetchAllArticles = () => {
@@ -76,4 +74,12 @@ RETURNING *;`
     }
   })
 }
-module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment };
+
+const fetchAllUsers = () => {
+  const sqlQuery = `SELECT * FROM users;`
+  return db.query(sqlQuery).then((result) => {
+    return result.rows
+  })
+}
+
+module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment, fetchAllUsers };
