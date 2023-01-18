@@ -256,17 +256,19 @@ describe("PATCH", () => {
       .send({ inc_votes: 5 })
       .expect(200)
       .then((response) => {
-        const returnedBody = { article : {
-          title: "Student SUES Mitch!",
-          topic: "mitch",
-          author: "rogersop",
-          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-          created_at: expect.any(String),
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          votes: 5,
-          article_id: 4,
-        } };
+        const returnedBody = {
+          article: {
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: expect.any(String),
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            votes: 5,
+            article_id: 4,
+          },
+        };
         const { body } = response;
         expect(body).toEqual(returnedBody);
       });
@@ -277,19 +279,62 @@ describe("PATCH", () => {
       .send({ inc_votes: -10 })
       .expect(200)
       .then((response) => {
-        const returnedBody = { article : {
-          title: "Student SUES Mitch!",
-          topic: "mitch",
-          author: "rogersop",
-          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
-          created_at: expect.any(String),
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          votes: -10,
-          article_id: 4,
-        } };
+        const returnedBody = {
+          article: {
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: expect.any(String),
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            votes: -10,
+            article_id: 4,
+          },
+        };
         const { body } = response;
         expect(body).toEqual(returnedBody);
+      });
+  });
+  test("PATCH : responds with a 200 status and updates votes even when passed surplus keys on body object", () => {
+    return request(app)
+      .patch("/api/articles/4")
+      .send({ inc_votes: -10, name: "Steph" })
+      .expect(200)
+      .then((response) => {
+        const returnedBody = {
+          article: {
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: expect.any(String),
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            votes: -10,
+            article_id: 4,
+          },
+        };
+        const { body } = response;
+        expect(body).toEqual(returnedBody);
+      });
+  });
+  test("PATCH : returns a 404 error message when article_id does not exist on test database", () => {
+    return request(app)
+      .patch("/api/articles/400000")
+      .send({ inc_votes: -10 })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found!");
+      });
+  });
+  test("PATCH : returns a 400 error message when passed invalid article_id data type", () => {
+    return request(app)
+      .patch("/api/articles/hello")
+      .send({ inc_votes: -10 })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request!");
       });
   });
 });
