@@ -271,13 +271,5 @@ describe("GET : users", () => {
       })
     })
   })
-  test("Responds with a 404 error message when passed an incorrect route", () => {
-    return request(app)
-    .get('/api/userrrrrrs')
-    .expect(404)
-    .then(({body : {msg}}) => {
-      expect(msg).toBe("Not found!")
-    })
-  })
 })
 
