@@ -178,7 +178,7 @@ describe("POST", () => {
           created_at: expect.any(String),
           votes: 0,
         },
-      }
+      };
       return request(app)
         .post(`/api/articles/3/comments`)
         .send(updatedComment)
@@ -207,7 +207,7 @@ describe("POST", () => {
     test("Returns a 404 error message when passed a body without a username", () => {
       return request(app)
         .post("/api/articles/3/comments")
-        .send({body : 'hello'})
+        .send({ body: "hello" })
         .expect(404)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Not found!");
@@ -216,14 +216,18 @@ describe("POST", () => {
     test("Returns a 404 error message when passed a body where username is not present in test database", () => {
       return request(app)
         .post("/api/articles/3/comments")
-        .send({username: 'Steph', body : 'hello'})
+        .send({ username: "Steph", body: "hello" })
         .expect(404)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Not found!");
         });
     });
     test("Returns a status 201 and responds with the updated comment object when passed a comment body with an extra key, function is able to ignore extra key", () => {
-      const updatedComment = { username: "lurker", body: "blah blah blah", hour : 12 };
+      const updatedComment = {
+        username: "lurker",
+        body: "blah blah blah",
+        hour: 12,
+      };
       const responseComment = {
         comment: {
           article_id: 3,
@@ -233,7 +237,7 @@ describe("POST", () => {
           created_at: expect.any(String),
           votes: 0,
         },
-      }
+      };
       return request(app)
         .post(`/api/articles/3/comments`)
         .send(updatedComment)
@@ -243,5 +247,49 @@ describe("POST", () => {
           expect(body).toEqual(responseComment);
         });
     });
+  });
+});
+describe("PATCH", () => {
+  test("PATCH : responds with a 200 status and updates votes on an article via artice_id, when passed a positive number", () => {
+    return request(app)
+      .patch("/api/articles/4")
+      .send({ inc_votes: 5 })
+      .expect(200)
+      .then((response) => {
+        const returnedBody = { article : {
+          title: "Student SUES Mitch!",
+          topic: "mitch",
+          author: "rogersop",
+          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+          created_at: expect.any(String),
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          votes: 5,
+          article_id: 4,
+        } };
+        const { body } = response;
+        expect(body).toEqual(returnedBody);
+      });
+  });
+  test("PATCH : responds with a 200 status and updates votes on an article via artice_id, when passed a negative number", () => {
+    return request(app)
+      .patch("/api/articles/4")
+      .send({ inc_votes: -10 })
+      .expect(200)
+      .then((response) => {
+        const returnedBody = { article : {
+          title: "Student SUES Mitch!",
+          topic: "mitch",
+          author: "rogersop",
+          body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+          created_at: expect.any(String),
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+          votes: -10,
+          article_id: 4,
+        } };
+        const { body } = response;
+        expect(body).toEqual(returnedBody);
+      });
   });
 });
