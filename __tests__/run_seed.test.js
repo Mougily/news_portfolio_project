@@ -204,5 +204,44 @@ describe("POST", () => {
           expect(msg).toBe("Bad request!");
         });
     });
+    test("Returns a 404 error message when passed a body without a username", () => {
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send({body : 'hello'})
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 404 error message when passed a body where username is not present in test database", () => {
+      return request(app)
+        .post("/api/articles/3/comments")
+        .send({username: 'Steph', body : 'hello'})
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a status 201 and responds with the updated comment object when passed a comment body with an extra key, function is able to ignore extra key", () => {
+      const updatedComment = { username: "lurker", body: "blah blah blah", hour : 12 };
+      const responseComment = {
+        comment: {
+          article_id: 3,
+          author: "lurker",
+          body: "blah blah blah",
+          comment_id: 19,
+          created_at: expect.any(String),
+          votes: 0,
+        },
+      }
+      return request(app)
+        .post(`/api/articles/3/comments`)
+        .send(updatedComment)
+        .expect(201)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual(responseComment);
+        });
+    });
   });
 });

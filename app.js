@@ -23,15 +23,7 @@ app.post("/api/articles/:article_id/comments", postComment);
 app.all("*", (request, response, next) => {
   response.status(404).send({ msg: "Not found!" });
 });
-// app.use((err, req, res, next) => {
-//     if (err.status === 400) {
-//         res.status(400).send({ msg: "Bad request!" });
-//     } else if (err.status === 404) {
-//         res.status(404).send({ msg: "Not found!"});
-//     } else {
-//         next(err)
-//     }
-// });
+
 app.use((err, req, res, next) => {
   if (err.status && err.msg) {
     res.status(err.status).send({ msg: err.msg });
