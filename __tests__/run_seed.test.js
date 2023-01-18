@@ -337,4 +337,42 @@ describe("PATCH", () => {
         expect(msg).toBe("Bad request!");
       });
   });
+  test("Checks votes have been added to test database", () => {
+    return request(app)
+      .patch("/api/articles/4")
+      .send({ inc_votes: 5 })
+      .expect(200)
+      .then((response) => {
+        const returnedBody = {
+          article: {
+            title: "Student SUES Mitch!",
+            topic: "mitch",
+            author: "rogersop",
+            body: "We all love Mitch and his wonderful, unique typing style. However, the volume of his typing has ALLEGEDLY burst another students eardrums, and they are now suing for damages",
+            created_at: expect.any(String),
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            votes: 5,
+            article_id: 4,
+          },
+        };
+        const { body } = response;
+        expect(body).toEqual(returnedBody);
+        return request(app)
+          .get(`/api/articles/4`)
+          .then((response) => {
+            const votes  = response.body.article[0].votes;
+            expect(votes).toBe(5);
+          });
+      });
+  });
+  test("PATCH : returns a 400 error message when passed invalid key on body", () => {
+    return request(app)
+      .patch("/api/articles/hello")
+      .send({ someVotes: -10 })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request!");
+      });
+  });
 });
