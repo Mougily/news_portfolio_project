@@ -3,6 +3,7 @@ const request = require("supertest");
 const { db } = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
+const jestSorted = require('jest-sorted');
 
 beforeEach(() => {
   return seed(testData);
@@ -133,7 +134,7 @@ describe("App testing", () => {
     });
   });
   describe("GET /api/articles/:article_id", () => {
-    test.only("Returns a 200 status and responds with an article object based on passed article_id", () => {
+    test("Returns a 200 status and responds with an article object based on passed article_id", () => {
       return request(app)
         .get("/api/articles/3")
         .expect(200)
@@ -367,7 +368,7 @@ describe("PATCH", () => {
         expect(msg).toBe("Bad request!");
       });
   });
-  test.only("Checks votes have been added to test database", () => {
+  test("Checks votes have been added to test database", () => {
     return request(app)
       .patch("/api/articles/4")
       .send({ inc_votes: 5 })
@@ -412,12 +413,12 @@ describe("GET /api/articles/:article_id - feature request", () => {
       .get("/api/articles/3")
       .expect(200)
       .then(({ body }) => {
-        console.log(body)
         const article3 = {
           title: "Eight pug gifs that remind me of mitch",
           topic: "mitch",
           author: "icellusedkars",
           created_at: "2020-11-03T09:12:00.000Z",
+          body: "some gifs",
           article_img_url:
             "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
           article_id: 3,
