@@ -7,6 +7,8 @@ const {
   getArticleById,
   postComment,
   getUsers
+  updateVotes,
+
 } = require("./controller");
 
 app.use(express.json());
@@ -22,6 +24,8 @@ app.get("/api/articles/:article_id", getArticleById);
 app.get('/api/users', getUsers);
 
 app.post("/api/articles/:article_id/comments", postComment);
+
+app.patch('/api/articles/:article_id', updateVotes)
 
 app.all("*", (request, response, next) => {
   response.status(404).send({ msg: "Not found!" });
