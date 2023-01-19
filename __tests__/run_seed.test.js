@@ -138,12 +138,12 @@ describe("App testing", () => {
           expect(articles[0]).toEqual(catsArticle);
         });
     });
-    test("responds with a 404 error when passed a topic that exists but there are no articles for the passed topic", () => {
+    test("responds with a 200 status and empty array when passed a topic that exists but which does not have any associated articles", () => {
       return request(app)
         .get(`/api/articles/?topic=paper`)
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Not found!");
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles).toEqual([]);
         });
     });
     test("responds with a 404 error when passed a topic that does not exist on the database", () => {
