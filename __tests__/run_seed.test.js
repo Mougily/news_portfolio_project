@@ -157,6 +157,31 @@ describe("App testing", () => {
           });
         });
     });
+    describe("GET /api/articles/:article_id - feature request", () => {
+      test("Returns a 200 status and responds with an article object based on passed article_id with comment_count on returned object, defaulted to 0", () => {
+        return request(app)
+          .get("/api/articles/3")
+          .expect(200)
+          .then(({ body }) => {
+            const article3 = {
+              title: "Eight pug gifs that remind me of mitch",
+              topic: "mitch",
+              author: "icellusedkars",
+              created_at: "2020-11-03T09:12:00.000Z",
+              body: "some gifs",
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+              article_id: 3,
+              votes: 0,
+              comment_count : "2"
+            };
+            expect(body.article.length).toBeGreaterThan(0);
+            body.article.forEach((article) => {
+              expect(article).toEqual(article3);
+            });
+          });
+        })
+    });
     test("Returns a 404 error message for id not found", () => {
       return request(app)
         .get("/api/articles/2345678")
@@ -406,29 +431,4 @@ describe("PATCH", () => {
         expect(msg).toBe("Bad request!");
       });
   });
-});
-describe("GET /api/articles/:article_id - feature request", () => {
-  test("Returns a 200 status and responds with an article object based on passed article_id with comment_count on returned object, defaulted to 0", () => {
-    return request(app)
-      .get("/api/articles/3")
-      .expect(200)
-      .then(({ body }) => {
-        const article3 = {
-          title: "Eight pug gifs that remind me of mitch",
-          topic: "mitch",
-          author: "icellusedkars",
-          created_at: "2020-11-03T09:12:00.000Z",
-          body: "some gifs",
-          article_img_url:
-            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-          article_id: 3,
-          votes: 0,
-          comment_count : "2"
-        };
-        expect(body.article.length).toBeGreaterThan(0);
-        body.article.forEach((article) => {
-          expect(article).toEqual(article3);
-        });
-      });
-    })
 });
