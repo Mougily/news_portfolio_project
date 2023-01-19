@@ -6,7 +6,7 @@ const {
   getArticleComments,
   getArticleById,
   postComment,
-  getUsers
+  getUsers,
   updateVotes,
 
 } = require("./controller");
