@@ -73,14 +73,6 @@ describe("App testing", () => {
           );
         });
     });
-    test("responds with a 404 error when passed an incorrect route", () => {
-      return request(app)
-        .get(`/api/articles123`)
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Not found!");
-        });
-    });
   });
   describe("GET: queries", () => {
     test("Returns a 200 status and accepts a sort-by query, which sorts articles by any valid column, sorting by created_at by default", () => {
@@ -88,20 +80,13 @@ describe("App testing", () => {
         .get(`/api/articles?sort_by=title`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles[0].author).toBe("rogersop");
-          expect(body.articles[body.articles.length - 1].author).toBe(
-            "icellusedkars"
+          expect(body.articles[0].title).toBe(
+            "UNCOVERED: catspiracy to bring down democracy"
           );
+          expect(body.articles[body.articles.length - 1].title).toBe("A");
         });
     });
-    test("responds with a 404 error when passed a sort_by column query where the passed column does not exist on the database", () => {
-      return request(app)
-        .get(`/api/articles/?sort_by=rainbows`)
-        .expect(404)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("Not found!");
-        });
-    });
+
     test("Returns a 200 status and accepts a sort-by query sorting by created_at by default", () => {
       return request(app)
         .get(`/api/articles`)
@@ -118,18 +103,20 @@ describe("App testing", () => {
         .get(`/api/articles?sort_by=title&order=ASC`)
         .expect(200)
         .then(({ body: { articles } }) => {
-          expect(articles[0].author).toBe("icellusedkars");
-          expect(articles[articles.length - 1].author).toBe("rogersop");
+          expect(articles[0].title).toBe("A");
+          expect(articles[articles.length - 1].title).toBe(
+            "UNCOVERED: catspiracy to bring down democracy"
+          );
         })
         .then(() => {
           return request(app)
             .get(`/api/articles?sort_by=title`)
             .expect(200)
             .then(({ body }) => {
-              expect(body.articles[0].author).toBe("rogersop");
-              expect(body.articles[body.articles.length - 1].author).toBe(
-                "icellusedkars"
+              expect(body.articles[0].title).toBe(
+                "UNCOVERED: catspiracy to bring down democracy"
               );
+              expect(body.articles[body.articles.length - 1].title).toBe("A");
             });
         });
     });
@@ -151,12 +138,20 @@ describe("App testing", () => {
           expect(articles[0]).toEqual(catsArticle);
         });
     });
+    test("responds with a 404 error when passed a topic that exists but there are no articles for the passed topic", () => {
+      return request(app)
+        .get(`/api/articles/?topic=paper`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
     test("responds with a 404 error when passed a topic that does not exist on the database", () => {
       return request(app)
         .get(`/api/articles/?topic=banana`)
         .expect(404)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Not found!");
+          expect(msg).toBe("Topic does not exist in the database!");
         });
     });
     test("400 : responds with error for not accepted order query", () => {
@@ -165,6 +160,22 @@ describe("App testing", () => {
         .expect(400)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Bad Request!");
+        });
+    });
+    test("responds with a 404 error when passed a sort_by column query where the passed column does not exist on the database", () => {
+      return request(app)
+        .get(`/api/articles/?sort_by=rainbows`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("responds with a 404 error when passed an incorrect route", () => {
+      return request(app)
+        .get(`/api/articles123`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
         });
     });
   });
@@ -201,7 +212,7 @@ describe("App testing", () => {
           );
         });
     });
-    test("responds with an error message when passed an incorrect id", () => {
+    test("responds with a 404 error message when passed an incorrect id", () => {
       return request(app)
         .get("/api/articles/2345678/comments")
         .expect(404)
@@ -282,6 +293,31 @@ describe("POST", () => {
           expect(body).toEqual(responseComment);
         });
     });
+    test("Returns a status 201 and responds with the updated comment object when passed a comment body with an extra key, function is able to ignore extra key", () => {
+      const updatedComment = {
+        username: "lurker",
+        body: "blah blah blah",
+        hour: 12,
+      };
+      const responseComment = {
+        comment: {
+          article_id: 3,
+          author: "lurker",
+          body: "blah blah blah",
+          comment_id: 19,
+          created_at: expect.any(String),
+          votes: 0,
+        },
+      };
+      return request(app)
+        .post(`/api/articles/3/comments`)
+        .send(updatedComment)
+        .expect(201)
+        .then((response) => {
+          const { body } = response;
+          expect(body).toEqual(responseComment);
+        });
+    });
     test("Returns a 404 error message for article id not found", () => {
       return request(app)
         .post("/api/articles/2345678/comments")
@@ -314,31 +350,6 @@ describe("POST", () => {
         .expect(404)
         .then(({ body: { msg } }) => {
           expect(msg).toBe("Not found!");
-        });
-    });
-    test("Returns a status 201 and responds with the updated comment object when passed a comment body with an extra key, function is able to ignore extra key", () => {
-      const updatedComment = {
-        username: "lurker",
-        body: "blah blah blah",
-        hour: 12,
-      };
-      const responseComment = {
-        comment: {
-          article_id: 3,
-          author: "lurker",
-          body: "blah blah blah",
-          comment_id: 19,
-          created_at: expect.any(String),
-          votes: 0,
-        },
-      };
-      return request(app)
-        .post(`/api/articles/3/comments`)
-        .send(updatedComment)
-        .expect(201)
-        .then((response) => {
-          const { body } = response;
-          expect(body).toEqual(responseComment);
         });
     });
   });
@@ -434,24 +445,6 @@ describe("PATCH", () => {
         expect(body).toEqual(returnedBody);
       });
   });
-  test("PATCH : returns a 404 error message when article_id does not exist on test database", () => {
-    return request(app)
-      .patch("/api/articles/400000")
-      .send({ inc_votes: -10 })
-      .expect(404)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Not found!");
-      });
-  });
-  test("PATCH : returns a 400 error message when passed invalid article_id data type", () => {
-    return request(app)
-      .patch("/api/articles/hello")
-      .send({ inc_votes: -10 })
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("Bad request!");
-      });
-  });
   test("Checks votes have been added to test database", () => {
     return request(app)
       .patch("/api/articles/4")
@@ -479,6 +472,24 @@ describe("PATCH", () => {
             const votes = response.body.article[0].votes;
             expect(votes).toBe(5);
           });
+      });
+  });
+  test("PATCH : returns a 404 error message when article_id does not exist on test database", () => {
+    return request(app)
+      .patch("/api/articles/400000")
+      .send({ inc_votes: -10 })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Not found!");
+      });
+  });
+  test("PATCH : returns a 400 error message when passed invalid article_id data type", () => {
+    return request(app)
+      .patch("/api/articles/hello")
+      .send({ inc_votes: -10 })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request!");
       });
   });
   test("PATCH : returns a 400 error message when passed invalid key on body", () => {
