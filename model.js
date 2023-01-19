@@ -8,9 +8,7 @@ const fetchAllTopics = () => {
     .then((results) => {
       return results.rows;
     })
-    .catch((err) => {
-      next(err);
-    });
+
 };
 
 const fetchAllArticles = () => {
@@ -77,6 +75,13 @@ RETURNING *;`
   })
 }
 
+const fetchAllUsers = () => {
+  const sqlQuery = `SELECT * FROM users;`
+  return db.query(sqlQuery).then((result) => {
+    return result.rows
+  })
+}
+
 const changeVotes = (id, votes) => {
   
   const sqlQuery = `UPDATE articles SET votes = votes + $2 WHERE article_id = $1 RETURNING*;`
@@ -90,7 +95,5 @@ const changeVotes = (id, votes) => {
     
   })
 }
+module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment, fetchAllUsers, changeVotes };
 
-
-
-module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment, changeVotes };
