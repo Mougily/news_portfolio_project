@@ -181,7 +181,7 @@ describe("App testing", () => {
   });
 
   describe("GET /article/comments", () => {
-    test("Responds with a 200 status and an array of comments for the given article_id", () => {
+    test.only("Responds with a 200 status and an array of comments for the given article_id", () => {
       return request(app)
         .get(`/api/articles/3/comments`)
         .expect(200)
