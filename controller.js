@@ -11,7 +11,10 @@ const getTopics = (request, response, next) => {
 }
 
 const getArticles = (request, response, next) => {
-    fetchAllArticles().then((articles) => {
+    const sort_by = request.query.sort_by
+    const order = request.query.order
+    const topic = request.query.topic
+    fetchAllArticles(sort_by, order, topic).then((articles) => {
         response.status(200).send({articles})
     }).catch((err) => {
         next(err)

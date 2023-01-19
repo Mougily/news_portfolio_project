@@ -82,6 +82,92 @@ describe("App testing", () => {
         });
     });
   });
+  describe("GET: queries", () => {
+    test("Returns a 200 status and accepts a sort-by query, which sorts articles by any valid column, sorting by created_at by default", () => {
+      return request(app)
+        .get(`/api/articles?sort_by=title`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles[0].author).toBe("rogersop");
+          expect(body.articles[body.articles.length - 1].author).toBe(
+            "icellusedkars"
+          );
+        });
+    });
+    test("responds with a 404 error when passed a sort_by column query where the passed column does not exist on the database", () => {
+      return request(app)
+        .get(`/api/articles/?sort_by=rainbows`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("Returns a 200 status and accepts a sort-by query sorting by created_at by default", () => {
+      return request(app)
+        .get(`/api/articles`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles[0].created_at).toBe("2020-11-03T09:12:00.000Z");
+          expect(body.articles[body.articles.length - 1].created_at).toBe(
+            "2020-06-06T09:10:00.000Z"
+          );
+        });
+    });
+    test("200 : accepts an order query, with default set to descending order", () => {
+      return request(app)
+        .get(`/api/articles?sort_by=title&order=ASC`)
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          expect(articles[0].author).toBe("icellusedkars");
+          expect(articles[articles.length - 1].author).toBe("rogersop");
+        })
+        .then(() => {
+          return request(app)
+            .get(`/api/articles?sort_by=title`)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.articles[0].author).toBe("rogersop");
+              expect(body.articles[body.articles.length - 1].author).toBe(
+                "icellusedkars"
+              );
+            });
+        });
+    });
+    test("Responds with a 200 status and accepts a topic query", () => {
+      return request(app)
+        .get(`/api/articles?topic=cats`)
+        .expect(200)
+        .then(({ body: { articles } }) => {
+          const catsArticle = {
+            article_id: 5,
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            topic: "cats",
+            author: "rogersop",
+            comment_count: "2",
+            votes: 0,
+            created_at: "2020-08-03T13:14:00.000Z",
+            article_img_url: expect.any(String),
+          };
+          expect(articles[0]).toEqual(catsArticle);
+        });
+    });
+    test("responds with a 404 error when passed a topic that does not exist on the database", () => {
+      return request(app)
+        .get(`/api/articles/?topic=banana`)
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Not found!");
+        });
+    });
+    test("400 : responds with error for not accepted order query", () => {
+      return request(app)
+        .get(`/api/articles?order=crumpets`)
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("Bad Request!");
+        });
+    });
+  });
 
   describe("GET /article/comments", () => {
     test("Responds with a 200 status and an array of comments for the given article_id", () => {
@@ -259,24 +345,24 @@ describe("POST", () => {
 });
 
 describe("GET : users", () => {
-  test('Returns a 200 status and an array of all users', () => {
+  test("Returns a 200 status and an array of all users", () => {
     return request(app)
-    .get("/api/users")
-    .expect(200)
-    .then(({body}) => {
-      expect(body.users.length).toBeGreaterThan(0);
-      body.users.forEach((user) => {
-        expect(user).toEqual(
-          expect.objectContaining({
-            username : expect.any(String),
-            name : expect.any(String),
-            avatar_url : expect.any(String)
-          })
-        )
-      })
-    })
-  })
-})
+      .get("/api/users")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.users.length).toBeGreaterThan(0);
+        body.users.forEach((user) => {
+          expect(user).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+              name: expect.any(String),
+              avatar_url: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
 
 describe("PATCH", () => {
   test("PATCH : responds with a 200 status and updates votes on an article via artice_id, when passed a positive number", () => {
@@ -390,7 +476,7 @@ describe("PATCH", () => {
         return request(app)
           .get(`/api/articles/4`)
           .then((response) => {
-            const votes  = response.body.article[0].votes;
+            const votes = response.body.article[0].votes;
             expect(votes).toBe(5);
           });
       });
@@ -405,4 +491,3 @@ describe("PATCH", () => {
       });
   });
 });
-
