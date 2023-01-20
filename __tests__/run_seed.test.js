@@ -412,7 +412,7 @@ describe("DELETE : status 204 and no content", () => {
       .expect(204)
       .then(() => {
         return request(app)
-          .get("/api/comments/5")
+          .delete("/api/comments/5")
           .expect(404)
           .then(({ body: { msg } }) => {
             expect(msg).toBe("Not found!");
@@ -425,6 +425,14 @@ describe("DELETE : status 204 and no content", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("Not found!");
+      });
+  });
+  test("Returns a 404 error message when passed a comment id of the wrong data type", () => {
+    return request(app)
+      .delete("/api/comments/hello")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Bad request!");
       });
   });
 });
