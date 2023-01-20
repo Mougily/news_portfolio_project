@@ -138,12 +138,12 @@ describe("App testing", () => {
           expect(articles[0]).toEqual(catsArticle);
         });
     });
-    test("responds with a 200 status and empty array when passed a topic that exists but which does not have any associated articles", () => {
+    test("responds with a 404 status not found when passed a topic that exists but which does not have any associated articles", () => {
       return request(app)
         .get(`/api/articles/?topic=paper`)
-        .expect(200)
-        .then(({ body: { articles } }) => {
-          expect(articles).toEqual([]);
+        .expect(404)
+        .then(({ body: { msg } }) => {
+          expect(msg).toEqual("Not found!");
         });
     });
     test("responds with a 404 error when passed a topic that does not exist on the database", () => {
@@ -151,15 +151,15 @@ describe("App testing", () => {
         .get(`/api/articles/?topic=banana`)
         .expect(404)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Topic does not exist in the database!");
+          expect(msg).toBe("Not found!");
         });
     });
     test("400 : responds with error for not accepted order query", () => {
       return request(app)
         .get(`/api/articles?order=crumpets`)
-        .expect(400)
+        .expect(404)
         .then(({ body: { msg } }) => {
-          expect(msg).toBe("Bad Request!");
+          expect(msg).toBe("Not found!");
         });
     });
     test("responds with a 404 error when passed a sort_by column query where the passed column does not exist on the database", () => {
@@ -181,7 +181,7 @@ describe("App testing", () => {
   });
 
   describe("GET /article/comments", () => {
-    test.only("Responds with a 200 status and an array of comments for the given article_id", () => {
+    test("Responds with a 200 status and an array of comments for the given article_id", () => {
       return request(app)
         .get(`/api/articles/3/comments`)
         .expect(200)

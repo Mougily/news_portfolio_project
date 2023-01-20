@@ -8,10 +8,9 @@ const fetchAllTopics = () => {
   });
 };
 
-const fetchAllArticles = (sort_by = "created_at", order = "DESC", topic) => {
+const fetchAllArticles = (sort_by = `created_at`, order = `DESC`, topic) => {
   const acceptedOrders = ["ASC", "DESC"];
   const queryValues = [];
-  const acceptedTopics = ["cats", "mitch", "paper"];
   const acceptedSortBys = [
     "created_at",
     "votes",
@@ -22,43 +21,29 @@ const fetchAllArticles = (sort_by = "created_at", order = "DESC", topic) => {
     "article_img_url",
     "comment_count",
   ];
- if (!acceptedOrders.includes(order) || !acceptedSortBys.includes(sort_by)) {
+
+  let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
+    FROM articles
+    INNER JOIN comments ON articles.article_id = comments.article_id`;
+
+  if (!acceptedOrders.includes(order) || !acceptedSortBys.includes(sort_by)) {
     return Promise.reject({ status: 404, msg: "Not found!" });
   }
-  if (topic !== undefined && !acceptedTopics.includes(topic)) {
-    return Promise.reject({
-      status: 404,
-      msg: "Topic does not exist in the database!",
-    });
-  }
-  let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
-  FROM articles
-  LEFT JOIN comments ON articles.article_id = comments.article_id`;
   if (topic !== undefined) {
     sqlQuery += ` WHERE articles.topic = $1`;
     queryValues.push(topic);
-  } else {
-    queryValues.push(sort_by);
-    queryValues.push(order);
-    sqlQuery += ` GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url`;
-    sqlQuery += ` ORDER BY articles.$2 $3 RETURNING*;`;
-   console.log(queryValues, "QUERY VALS")
-    return db.query(sqlQuery, queryValues).then((result) => {
-      if (result.rows.length === 0) {
-        return Promise.reject({ status: 404, msg: "Not found!" });
-      }
-      console.log(result.rows)
-      return result.rows;
-    });
   }
+  sqlQuery += ` GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url`;
+  sqlQuery += ` ORDER BY articles.${sort_by} ${order};`;
+
+  return db.query(sqlQuery, queryValues).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Not found!" });
+    }
+    return result.rows;
+  });
 };
 
-
-// const sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
-// FROM articles
-// LEFT JOIN comments ON articles.article_id = comments.article_id
-// GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url
-// ORDER BY articles.title ASC;`
 
 
 const fetchArticleComments = (id) => {
