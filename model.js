@@ -63,12 +63,10 @@ const fetchArticleComments = (id) => {
     if (result.rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Not found!" });
     } else {
-      return result.rows;
+    return result.rows;
     }
   });
 };
-
-
 
 const fetchSingleArticle = (id) => {
 
@@ -90,18 +88,7 @@ const fetchSingleArticle = (id) => {
         else {
             return result.rows;
         }
-    })    
-
-  const sqlQuery = `SELECT * FROM articles
-   WHERE article_id = $1`;
-  return db.query(sqlQuery, [id]).then((result) => {
-    if (result.rows.length === 0) {
-      return Promise.reject({ status: 404, msg: "Not found!" });
-    } else {
-      return result.rows;
-    }
-  });
-
+    }) 
 };
 
 const sendComment = (id, comment) => {
