@@ -3,6 +3,7 @@ const request = require("supertest");
 const { db } = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
+const jestSorted = require('jest-sorted');
 
 beforeEach(() => {
   return seed(testData);
@@ -214,6 +215,7 @@ describe("App testing", () => {
             title: "Eight pug gifs that remind me of mitch",
             topic: "mitch",
             author: "icellusedkars",
+            comment_count : '2',
             body: "some gifs",
             created_at: "2020-11-03T09:12:00.000Z",
             article_img_url:
@@ -226,6 +228,32 @@ describe("App testing", () => {
             expect(article).toEqual(article3);
           });
         });
+    });
+    describe("GET /api/articles/:article_id - feature request", () => {
+      test("Returns a 200 status and responds with an article object based on passed article_id with comment_count on returned object, defaulted to 0", () => {
+        return request(app)
+          .get("/api/articles/3")
+          .expect(200)
+          .then(({ body }) => {
+            expect(body.article.length).toBeGreaterThan(0);
+            body.article.forEach((article) => {
+              expect(article).toEqual(
+                expect.objectContaining({
+                  title : expect.any(String),
+                  topic : expect.any(String),
+                  body : expect.any(String),
+                  votes: expect.any(Number),
+                  created_at: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  article_id: expect.any(Number),
+                  article_img_url : expect.any(String),
+                  comment_count : expect.any(String)
+                })
+              );
+            });
+          });
+        })
     });
     test("Returns a 404 error message for id not found", () => {
       return request(app)
