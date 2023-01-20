@@ -136,14 +136,23 @@ const changeVotes = (id, votes) => {
     } else {
       return result.rows[0];
     }
-  });
+
+    
+  })
+}
+
+const removeComment = (id) => {
+  const sqlQuery = `DELETE FROM comments
+         WHERE comment_id = $1
+         RETURNING*;`;
+
+  return db.query(sqlQuery, [id]).then((result) => {
+    if (result.rowCount === 0){
+      return Promise.reject({ status: 404, msg: "Not found!" });
+    }
+  })
 };
-module.exports = {
-  fetchAllTopics,
-  fetchAllArticles,
-  fetchSingleArticle,
-  fetchArticleComments,
-  sendComment,
-  fetchAllUsers,
-  changeVotes,
-};
+module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment, fetchAllUsers, changeVotes, removeComment };
+
+
+
