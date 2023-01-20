@@ -427,7 +427,7 @@ describe("DELETE : status 204 and no content", () => {
         expect(msg).toBe("Not found!");
       });
   });
-  test("Returns a 404 error message when passed a comment id of the wrong data type", () => {
+  test("Returns a 400 error message when passed a comment id of the wrong data type", () => {
     return request(app)
       .delete("/api/comments/hello")
       .expect(400)
