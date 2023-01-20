@@ -11,16 +11,22 @@ const getTopics = (request, response, next) => {
 }
 
 const getArticles = (request, response, next) => {
-    fetchAllArticles().then((articles) => {
+    const {sort_by} = request.query
+    const {order} = request.query
+    const {topic} = request.query
+
+    fetchAllTopics().then((acceptedTopics) => {
+       return fetchAllArticles(sort_by, order, topic, acceptedTopics)
+    }).then((articles) => {
         response.status(200).send({articles})
-    }).catch((err) => {
-        next(err)
-    })
+     }).catch((err) => {
+         next(err)
+     })
 }
 
 const getArticleComments = (request, response, next) => {
-    const id = request.params.article_id
-    fetchArticleComments(id).then((comments) => {
+    const {article_id }= request.params
+    fetchArticleComments(article_id).then((comments) => {
         response.status(200).send({comments})
     }).catch((err) => {
         next(err)
@@ -28,8 +34,8 @@ const getArticleComments = (request, response, next) => {
 }
 
 const getArticleById = (request, response, next) => {
-    const id = request.params.article_id
-    fetchSingleArticle(id).then((article) => {
+    const {article_id} = request.params
+    fetchSingleArticle(article_id).then((article) => {
         response.status(200).send({article})
     }).catch((err) => {
        next(err)
