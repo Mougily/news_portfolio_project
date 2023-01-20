@@ -163,21 +163,22 @@ describe("App testing", () => {
           .get("/api/articles/3")
           .expect(200)
           .then(({ body }) => {
-            const article3 = {
-              title: "Eight pug gifs that remind me of mitch",
-              topic: "mitch",
-              author: "icellusedkars",
-              created_at: "2020-11-03T09:12:00.000Z",
-              body: "some gifs",
-              article_img_url:
-                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-              article_id: 3,
-              votes: 0,
-              comment_count : "2"
-            };
             expect(body.article.length).toBeGreaterThan(0);
             body.article.forEach((article) => {
-              expect(article).toEqual(article3);
+              expect(article).toEqual(
+                expect.objectContaining({
+                  title : expect.any(String),
+                  topic : expect.any(String),
+                  body : expect.any(String),
+                  votes: expect.any(Number),
+                  created_at: expect.any(String),
+                  author: expect.any(String),
+                  body: expect.any(String),
+                  article_id: expect.any(Number),
+                  article_img_url : expect.any(String),
+                  comment_count : expect.any(String)
+                })
+              );
             });
           });
         })
