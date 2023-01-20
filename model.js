@@ -7,7 +7,6 @@ const fetchAllTopics = () => {
     return results.rows;
   });
 };
-
 const fetchAllArticles = (sort_by = `created_at`, order = `DESC`, topic) => {
   const acceptedOrders = ["ASC", "DESC"];
   const queryValues = [];
@@ -24,7 +23,7 @@ const fetchAllArticles = (sort_by = `created_at`, order = `DESC`, topic) => {
 
   let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
     FROM articles
-    INNER JOIN comments ON articles.article_id = comments.article_id`;
+    LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
   if (!acceptedOrders.includes(order) || !acceptedSortBys.includes(sort_by)) {
     return Promise.reject({ status: 404, msg: "Not found!" });

@@ -62,17 +62,6 @@ describe("App testing", () => {
           });
         });
     });
-    test("Sorts by date in decending order by default", () => {
-      return request(app)
-        .get(`/api/articles`)
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.articles[0].created_at).toBe("2020-11-03T09:12:00.000Z");
-          expect(body.articles[body.articles.length - 1].created_at).toBe(
-            "2020-06-06T09:10:00.000Z"
-          );
-        });
-    });
   });
   describe("GET: queries", () => {
     test("Returns a 200 status and accepts a sort-by query, which sorts articles by any valid column, sorting by created_at by default", () => {
@@ -80,22 +69,16 @@ describe("App testing", () => {
         .get(`/api/articles?sort_by=title`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles[0].title).toBe(
-            "UNCOVERED: catspiracy to bring down democracy"
+          expect(body.articles).toBeSorted('title', {descending : true}
           );
-          expect(body.articles[body.articles.length - 1].title).toBe("A");
         });
     });
-
     test("Returns a 200 status and accepts a sort-by query sorting by created_at by default", () => {
       return request(app)
         .get(`/api/articles`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles[0].created_at).toBe("2020-11-03T09:12:00.000Z");
-          expect(body.articles[body.articles.length - 1].created_at).toBe(
-            "2020-06-06T09:10:00.000Z"
-          );
+          expect(body.articles).toBeSorted('created_at', {descending : true});
         });
     });
     test("200 : accepts an order query, with default set to descending order", () => {
@@ -103,20 +86,15 @@ describe("App testing", () => {
         .get(`/api/articles?sort_by=title&order=ASC`)
         .expect(200)
         .then(({ body: { articles } }) => {
-          expect(articles[0].title).toBe("A");
-          expect(articles[articles.length - 1].title).toBe(
-            "UNCOVERED: catspiracy to bring down democracy"
-          );
+          expect(articles).toBeSorted("title", {ascending : true});
         })
         .then(() => {
           return request(app)
             .get(`/api/articles?sort_by=title`)
             .expect(200)
             .then(({ body }) => {
-              expect(body.articles[0].title).toBe(
-                "UNCOVERED: catspiracy to bring down democracy"
+              expect(body.articles).toBeSorted('title', {descending : true}
               );
-              expect(body.articles[body.articles.length - 1].title).toBe("A");
             });
         });
     });
@@ -206,10 +184,7 @@ describe("App testing", () => {
         .get(`/api/articles/3/comments`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.comments[0].created_at).toBe("2020-06-20T07:24:00.000Z");
-          expect(body.comments[body.comments.length - 1].created_at).toBe(
-            "2020-09-19T23:10:00.000Z"
-          );
+          expect(body.comments).toBeSorted("created_at", {ascending : true});
         });
     });
     test("responds with a 404 error message when passed an incorrect id", () => {
