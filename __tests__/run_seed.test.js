@@ -3,7 +3,7 @@ const request = require("supertest");
 const { db } = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
-const jestSorted = require('jest-sorted');
+const jestSorted = require("jest-sorted");
 
 beforeEach(() => {
   return seed(testData);
@@ -70,8 +70,7 @@ describe("App testing", () => {
         .get(`/api/articles?sort_by=title`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toBeSorted('title', {descending : true}
-          );
+          expect(body.articles).toBeSorted("title", { descending: true });
         });
     });
     test("Returns a 200 status and accepts a sort-by query sorting by created_at by default", () => {
@@ -79,7 +78,7 @@ describe("App testing", () => {
         .get(`/api/articles`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.articles).toBeSorted('created_at', {descending : true});
+          expect(body.articles).toBeSorted("created_at", { descending: true });
         });
     });
     test("200 : accepts an order query, with default set to descending order", () => {
@@ -87,15 +86,14 @@ describe("App testing", () => {
         .get(`/api/articles?sort_by=title&order=ASC`)
         .expect(200)
         .then(({ body: { articles } }) => {
-          expect(articles).toBeSorted("title", {ascending : true});
+          expect(articles).toBeSorted("title", { ascending: true });
         })
         .then(() => {
           return request(app)
             .get(`/api/articles?sort_by=title`)
             .expect(200)
             .then(({ body }) => {
-              expect(body.articles).toBeSorted('title', {descending : true}
-              );
+              expect(body.articles).toBeSorted("title", { descending: true });
             });
         });
     });
@@ -121,7 +119,7 @@ describe("App testing", () => {
       return request(app)
         .get(`/api/articles/?topic=paper`)
         .expect(200)
-        .then(({ body}) => {
+        .then(({ body }) => {
           expect(body.articles).toEqual([]);
         });
     });
@@ -185,7 +183,7 @@ describe("App testing", () => {
         .get(`/api/articles/3/comments`)
         .expect(200)
         .then(({ body }) => {
-          expect(body.comments).toBeSorted("created_at", {ascending : true});
+          expect(body.comments).toBeSorted("created_at", { ascending: true });
         });
     });
     test("responds with a 404 error message when passed an incorrect id", () => {
@@ -215,7 +213,7 @@ describe("App testing", () => {
             title: "Eight pug gifs that remind me of mitch",
             topic: "mitch",
             author: "icellusedkars",
-            comment_count : '2',
+            comment_count: "2",
             body: "some gifs",
             created_at: "2020-11-03T09:12:00.000Z",
             article_img_url:
@@ -239,21 +237,21 @@ describe("App testing", () => {
             body.article.forEach((article) => {
               expect(article).toEqual(
                 expect.objectContaining({
-                  title : expect.any(String),
-                  topic : expect.any(String),
-                  body : expect.any(String),
+                  title: expect.any(String),
+                  topic: expect.any(String),
+                  body: expect.any(String),
                   votes: expect.any(Number),
                   created_at: expect.any(String),
                   author: expect.any(String),
                   body: expect.any(String),
                   article_id: expect.any(Number),
-                  article_img_url : expect.any(String),
-                  comment_count : expect.any(String)
+                  article_img_url: expect.any(String),
+                  comment_count: expect.any(String),
                 })
               );
             });
           });
-        })
+      });
     });
     test("Returns a 404 error message for id not found", () => {
       return request(app)
@@ -537,4 +535,3 @@ describe("DELETE : status 204 and no content", () => {
       });
   });
 });
-

@@ -30,29 +30,26 @@ const fetchAllArticles = (
     return topic.slug;
   });
 
-  
-  
-    let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
+  let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
-    if (!acceptedOrders.includes(order) || !acceptedSortBys.includes(sort_by)) {
+  if (!acceptedOrders.includes(order) || !acceptedSortBys.includes(sort_by)) {
+    return Promise.reject({ status: 404, msg: "Not found!" });
+  }
+  if (topic !== undefined) {
+    sqlQuery += ` WHERE articles.topic = $1`;
+    queryValues.push(topic);
+  }
+  sqlQuery += ` GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url`;
+  sqlQuery += ` ORDER BY articles.${sort_by} ${order};`;
+
+  return db.query(sqlQuery, queryValues).then((result) => {
+    if (result.rows.length === 0 && !mappedAcceptedTopics.includes(topic)) {
       return Promise.reject({ status: 404, msg: "Not found!" });
     }
-    if (topic !== undefined) {
-      sqlQuery += ` WHERE articles.topic = $1`;
-      queryValues.push(topic);
-    }
-    sqlQuery += ` GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url`;
-    sqlQuery += ` ORDER BY articles.${sort_by} ${order};`;
-
-    return db.query(sqlQuery, queryValues).then((result) => {
-      if (result.rows.length === 0 && !mappedAcceptedTopics.includes(topic)) {
-        return Promise.reject({ status: 404, msg: "Not found!" });
-      } 
-      return result.rows;
-    });
-  
+    return result.rows;
+  });
 };
 
 const fetchArticleComments = (id) => {
@@ -63,13 +60,12 @@ const fetchArticleComments = (id) => {
     if (result.rows.length === 0) {
       return Promise.reject({ status: 404, msg: "Not found!" });
     } else {
-    return result.rows;
+      return result.rows;
     }
   });
 };
 
 const fetchSingleArticle = (id) => {
-
   const sqlQuery = `SELECT articles.*, COUNT(comments.article_id)
      AS comment_count
      FROM articles
@@ -79,16 +75,13 @@ const fetchSingleArticle = (id) => {
      GROUP BY articles.article_id
      ORDER BY created_at DESC;`;
 
-  return db
-    .query(sqlQuery, [id])
-    .then((result) => {
-        if (result.rows.length === 0){
-         return Promise.reject({ status: 404, msg: "Not found!" })
-        }
-        else {
-            return result.rows;
-        }
-    }) 
+  return db.query(sqlQuery, [id]).then((result) => {
+    if (result.rows.length === 0) {
+      return Promise.reject({ status: 404, msg: "Not found!" });
+    } else {
+      return result.rows;
+    }
+  });
 };
 
 const sendComment = (id, comment) => {
@@ -123,10 +116,8 @@ const changeVotes = (id, votes) => {
     } else {
       return result.rows[0];
     }
-
-    
-  })
-}
+  });
+};
 
 const removeComment = (id) => {
   const sqlQuery = `DELETE FROM comments
@@ -134,12 +125,18 @@ const removeComment = (id) => {
          RETURNING*;`;
 
   return db.query(sqlQuery, [id]).then((result) => {
-    if (result.rowCount === 0){
+    if (result.rowCount === 0) {
       return Promise.reject({ status: 404, msg: "Not found!" });
     }
-  })
+  });
 };
-module.exports = { fetchAllTopics, fetchAllArticles, fetchSingleArticle, fetchArticleComments, sendComment, fetchAllUsers, changeVotes, removeComment };
-
-
-
+module.exports = {
+  fetchAllTopics,
+  fetchAllArticles,
+  fetchSingleArticle,
+  fetchArticleComments,
+  sendComment,
+  fetchAllUsers,
+  changeVotes,
+  removeComment,
+};
