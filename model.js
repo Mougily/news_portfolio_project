@@ -7,7 +7,12 @@ const fetchAllTopics = () => {
     return results.rows;
   });
 };
-const fetchAllArticles = (sort_by = `created_at`, order = `DESC`, topic) => {
+const fetchAllArticles = (
+  sort_by = `created_at`,
+  order = `DESC`,
+  topic,
+  acceptedTopics
+) => {
   const acceptedOrders = ["ASC", "DESC"];
   const queryValues = [];
   const acceptedSortBys = [
@@ -21,29 +26,34 @@ const fetchAllArticles = (sort_by = `created_at`, order = `DESC`, topic) => {
     "comment_count",
   ];
 
-  let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
+  const mappedAcceptedTopics = acceptedTopics.map((topic) => {
+    return topic.slug;
+  });
+
+  
+  
+    let sqlQuery = `SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, COUNT(comments.article_id) AS comment_count
     FROM articles
     LEFT JOIN comments ON articles.article_id = comments.article_id`;
 
-  if (!acceptedOrders.includes(order) || !acceptedSortBys.includes(sort_by)) {
-    return Promise.reject({ status: 404, msg: "Not found!" });
-  }
-  if (topic !== undefined) {
-    sqlQuery += ` WHERE articles.topic = $1`;
-    queryValues.push(topic);
-  }
-  sqlQuery += ` GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url`;
-  sqlQuery += ` ORDER BY articles.${sort_by} ${order};`;
-
-  return db.query(sqlQuery, queryValues).then((result) => {
-    if (result.rows.length === 0) {
+    if (!acceptedOrders.includes(order) || !acceptedSortBys.includes(sort_by)) {
       return Promise.reject({ status: 404, msg: "Not found!" });
     }
-    return result.rows;
-  });
+    if (topic !== undefined) {
+      sqlQuery += ` WHERE articles.topic = $1`;
+      queryValues.push(topic);
+    }
+    sqlQuery += ` GROUP BY articles.article_id, articles.author, articles.title, articles.topic, articles.created_at, articles.votes, articles.article_img_url`;
+    sqlQuery += ` ORDER BY articles.${sort_by} ${order};`;
+
+    return db.query(sqlQuery, queryValues).then((result) => {
+      if (result.rows.length === 0 && !mappedAcceptedTopics.includes(topic)) {
+        return Promise.reject({ status: 404, msg: "Not found!" });
+      } 
+      return result.rows;
+    });
+  
 };
-
-
 
 const fetchArticleComments = (id) => {
   const sqlQuery = `SELECT * FROM comments

@@ -14,11 +14,14 @@ const getArticles = (request, response, next) => {
     const {sort_by} = request.query
     const {order} = request.query
     const {topic} = request.query
-    fetchAllArticles(sort_by, order, topic).then((articles) => {
+
+    fetchAllTopics().then((acceptedTopics) => {
+       return fetchAllArticles(sort_by, order, topic, acceptedTopics)
+    }).then((articles) => {
         response.status(200).send({articles})
-    }).catch((err) => {
-        next(err)
-    })
+     }).catch((err) => {
+         next(err)
+     })
 }
 
 const getArticleComments = (request, response, next) => {
