@@ -56,7 +56,7 @@
   "GET /api/articles/:article_id": {
     "description": "Serves up an array containing a single article by given article id",
     "queries": [],
-    "exampleRespons": {
+    "exampleResponse": {
       "article": [
         {
           "title": "Running a Node App",
@@ -125,3 +125,4 @@
     "exampleResponse": []
   }
 }
+

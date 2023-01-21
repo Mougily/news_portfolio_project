@@ -4,6 +4,7 @@ const { db } = require("../db/connection");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data/index");
 const jestSorted = require("jest-sorted");
+const endpoints = require("../endpoints.json")
 
 beforeEach(() => {
   return seed(testData);
@@ -535,3 +536,19 @@ describe("DELETE : status 204 and no content", () => {
       });
   });
 });
+describe('Endpoints', () => {
+  test('endpoints.json file should have correct format', () => {
+      expect(endpoints).toBeDefined();
+      expect(Object.keys(endpoints).length).toBeGreaterThan(0);
+  });
+  Object.keys(endpoints).forEach(endpoint => {
+      test(`${endpoint} should match the format`, () => {
+          expect(endpoints[endpoint]).toHaveProperty('description');
+          if (endpoints[endpoint].hasOwnProperty('exampleResponse')) {
+              expect(endpoints[endpoint]).toHaveProperty('exampleResponse');
+          }
+      });
+  });
+});
+
+
