@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const app = express();
 const {
   getTopics,
@@ -8,10 +9,10 @@ const {
   postComment,
   getUsers,
   updateVotes,
-  deleteComment
-
+  deleteComment,
 } = require("./controller");
 
+app.use(cors());
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
@@ -22,13 +23,13 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 
 app.get("/api/articles/:article_id", getArticleById);
 
-app.get('/api/users', getUsers);
+app.get("/api/users", getUsers);
 
 app.post("/api/articles/:article_id/comments", postComment);
 
-app.patch('/api/articles/:article_id', updateVotes)
+app.patch("/api/articles/:article_id", updateVotes);
 
-app.delete('/api/comments/:comment_id', deleteComment)
+app.delete("/api/comments/:comment_id", deleteComment);
 
 app.all("*", (request, response, next) => {
   response.status(404).send({ msg: "Not found!" });
